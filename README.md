@@ -1,2 +1,8 @@
-# kvfirst
-cloudflareのKV
+```
+npm install
+npm run dev
+```
+
+```
+npm run deploy
+```
