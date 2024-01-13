@@ -1,5 +1,6 @@
 import { KVNamespace } from '@cloudflare/workers-types'
 import { Hono } from 'hono'
+import { Video } from './ts/video'
 // import { bearerAuth } from "hono/bearer-auth";
 
 type Bindings = {
@@ -11,20 +12,47 @@ const app = new Hono<{ Bindings: Bindings }>()
 // const token = "honoiscool";
 // app.use("/api/*", bearerAuth({ token }));
 
-app.get('/api/items/aa', async (c) => {
+app.get("/api/videos/:username", async (c) => {
   // MY_KV から get
-  const item:any = await c.env.MY_KV.get('aa')
-  console.log(c.env.MY_KV);
-  const objitem = JSON.parse(item);
-  return c.json({ success: true, aa: objitem });
-})
+  const { username } = c.req.param();
+  const videos: any = await c.env.MY_KV.get(username);
+  if (videos) {
+    const objvideos = JSON.parse(videos);
+    return c.json({ success: true, videos: objvideos });
+  } else {
+    return c.json({ success: false, message: "video not found" });
+  }
+});
 
-app.post('/api/items', async (c) => {
-  const { value } = await c.req.json();
-  // オブジェクトをJSON文字列に変換
-  const jsonvalue = JSON.stringify(value);
-  await c.env.MY_KV.put("aa", jsonvalue);
-  return c.json({ success: true });
-})
+app.post("/api/videos/:username", async (c) => {
+  const { username } = c.req.param();
+  let newVideo = await c.req.json();
+
+  let videos: any = await c.env.MY_KV.get(username);
+
+  if (!videos) {
+    videos = JSON.parse(videos);
+    videos = [newVideo]; // Convert newVideo to an array
+  } else {
+    videos.push(newVideo);
+  }
+
+  // Convert the object to a JSON string
+  const resultVideos = JSON.stringify(videos);
+  await c.env.MY_KV.put(username, resultVideos);
+  const perseVideos = JSON.parse(resultVideos);
+  return c.json({ success: true, videos: perseVideos });
+});
+
+app.delete("/api/videos/:username", async (c) => {
+  const { username } = c.req.param();
+
+  await c.env.MY_KV.delete(username);
+
+  return c.json({
+    success: true,
+    message: "Deleted videos for" + username,
+  });
+});
 
 export default app
