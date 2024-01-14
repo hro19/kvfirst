@@ -4,5 +4,5 @@ export type Video = {
   channelId: string;
   title: string;
   description: string;
-  thumbnails: string;
+  thumbnail: string;
 };

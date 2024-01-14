@@ -1,5 +1,6 @@
 import { KVNamespace } from '@cloudflare/workers-types'
 import { Hono } from 'hono'
+import { cors } from "hono/cors";
 import { Video } from './ts/video'
 // import { bearerAuth } from "hono/bearer-auth";
 
@@ -8,7 +9,7 @@ type Bindings = {
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
-
+app.use("/api/*", cors());
 // const token = "honoiscool";
 // app.use("/api/*", bearerAuth({ token }));
 
