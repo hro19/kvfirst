@@ -31,9 +31,9 @@ app.post("/api/videos/:username", async (c) => {
   let videos: any = await c.env.MY_KV.get(username);
 
   if (!videos) {
-    videos = JSON.parse(videos);
     videos = [newVideo]; // Convert newVideo to an array
   } else {
+    videos = JSON.parse(videos);
     videos.push(newVideo);
   }
 
