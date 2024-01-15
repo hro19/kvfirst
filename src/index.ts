@@ -45,6 +45,30 @@ app.post("/api/videos/:username", async (c) => {
   return c.json({ success: true, videos: perseVideos });
 });
 
+//指定したvideoIdを削除する
+app.put("/api/videos/:username/del/:videoId", async (c) => {
+  const { username, videoId } = c.req.param();
+
+  let videos:any = await c.env.MY_KV.get(username);
+
+  if (videos === null) {
+    return c.json({ success: false, message: "お気に入り登録はありません" });
+  } else {
+    videos = JSON.parse(videos);
+    if (Array.isArray(videos)) {
+      videos = videos.filter((video: any) => video.videoId !== videoId);
+    }
+  }
+
+  const stringifyVideos = JSON.stringify(videos);
+  await c.env.MY_KV.put(username, stringifyVideos);
+
+  return c.json({
+    success: true,
+    videos: videos,
+  });
+});
+
 app.delete("/api/videos/:username", async (c) => {
   const { username } = c.req.param();
 
